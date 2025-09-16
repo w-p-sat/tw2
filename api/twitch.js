@@ -1,4 +1,4 @@
-const fetch = require('node-fetch');
+
 
 // Змінні, які будуть взяті з Vercel (КРОК 5!)
 const CLIENT_ID = process.env.CLIENT_ID;
@@ -38,4 +38,5 @@ module.exports = async (req, res) => {
         console.error('Error fetching Twitch streams:', error);
         res.status(500).send('Internal Server Error');
     }
+
 };
