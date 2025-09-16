@@ -1,8 +1,3 @@
-
-
-// Змінні, які будуть взяті з Vercel (КРОК 5!)
-const CLIENT_ID = process.env.CLIENT_ID;
-const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const GAME_ID = '490403'; // ID гри Slots
 
 module.exports = async (req, res) => {
@@ -10,16 +5,15 @@ module.exports = async (req, res) => {
         // Отримання токена доступу
         const tokenResponse = await fetch('https://id.twitch.tv/oauth2/token', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: `client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&grant_type=client_credentials`
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `client_id=${process.env.CLIENT_ID}&client_secret=${process.env.CLIENT_SECRET}&grant_type=client_credentials`
         });
         const tokenData = await tokenResponse.json();
         const accessToken = tokenData.access_token;
 
         if (!accessToken) {
-            res.status(500).send('Error: Could not get access token from Twitch.');
+            console.error('Failed to get access token from Twitch.');
+            res.status(500).send('Error: Could not get access token.');
             return;
         }
 
@@ -27,16 +21,23 @@ module.exports = async (req, res) => {
         const streamsResponse = await fetch(`https://api.twitch.tv/helix/streams?game_id=${GAME_ID}`, {
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
-                'Client-Id': CLIENT_ID
+                'Client-Id': process.env.CLIENT_ID
             }
         });
         const streamsData = await streamsResponse.json();
 
-        // Повертаємо дані про стріми
-        res.status(200).json(streamsData.data);
+        // ** НОВІ РЯДКИ ДЛЯ ДІАГНОСТИКИ **
+        console.log('Twitch API response:', JSON.stringify(streamsData, null, 2));
+
+        if (streamsData && streamsData.data && streamsData.data.length > 0) {
+            res.status(200).json(streamsData.data);
+        } else {
+            console.log('No active streams found in response.');
+            res.status(200).json([]);
+        }
+
     } catch (error) {
         console.error('Error fetching Twitch streams:', error);
         res.status(500).send('Internal Server Error');
     }
-
 };
