@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitch Casino Streams</title>
+    <style>
+        body { font-family: sans-serif; background-color: #121212; color: white; padding: 20px; }
+        .stream-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+        .stream-item { width: 400px; background-color: #1e1e1e; padding: 10px; border-radius: 8px; }
+        h1 { text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>Активні стріми казино</h1>
+    <div id="streams-list" class="stream-container">
+        Завантаження стрімів...
+    </div>
+
+    <script>
+        // Функція для отримання стрімів з нашої серверної функції
+        async function fetchStreams() {
+            try {
+                const response = await fetch('/api/twitch');
+                const streams = await response.json();
+                const container = document.getElementById('streams-list');
+                container.innerHTML = ''; // Очищаємо "Завантаження..."
+
+                if (streams.length === 0) {
+                    container.innerHTML = '<p>Зараз немає активних стрімів казино.</p>';
+                    return;
+                }
+
+                streams.forEach(stream => {
+                    const streamElement = document.createElement('div');
+                    streamElement.className = 'stream-item';
+                    
+                    const iframe = document.createElement('iframe');
+                    iframe.src = `https://player.twitch.tv/?channel=${stream.user_login}&parent=${window.location.hostname}&autoplay=false`;
+                    iframe.width = "400";
+                    iframe.height = "225";
+                    iframe.allowFullscreen = true;
+
+                    const title = document.createElement('h3');
+                    title.textContent = stream.title;
+
+                    const username = document.createElement('p');
+                    username.textContent = `Стрімер: ${stream.user_name}`;
+
+                    streamElement.appendChild(iframe);
+                    streamElement.appendChild(title);
+                    streamElement.appendChild(username);
+                    container.appendChild(streamElement);
+                });
+            } catch (error) {
+                console.error('Failed to fetch streams:', error);
+                document.getElementById('streams-list').innerHTML = '<p>Помилка завантаження стрімів.</p>';
+            }
+        }
+
+        // Запускаємо функцію при завантаженні сторінки
+        fetchStreams();
+    </script>
+</body>
+</html>
