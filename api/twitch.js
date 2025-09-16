@@ -2,7 +2,7 @@ module.exports = async (req, res) => {
     try {
         const CLIENT_ID = process.env.CLIENT_ID;
         const CLIENT_SECRET = process.env.CLIENT_SECRET;
-        const GAME_ID = '490403'; // ID гри Slots
+        const GAME_ID = '498566'; // ID гри Slots
 
         // Отримання токена
         const tokenResponse = await fetch('https://id.twitch.tv/oauth2/token', {
@@ -34,3 +34,4 @@ module.exports = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 };
+
